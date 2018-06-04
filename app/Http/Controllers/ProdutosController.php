@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Produtos;
+use App\Categorias;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ProdutosController extends Controller
 {
@@ -15,7 +17,13 @@ class ProdutosController extends Controller
      */
     public function index()
     {
-      
+        $value = '03/06/2016';
+        $dt = Carbon::createFromFormat('d/m/Y', $value)->toDateString(); //Carbon::now();
+       // echo $dt;
+        //echo $dt->toDateString(); 
+       // echo $current;
+       
+
         //
        /* $produtos = DB::select('select * from produtos where id_produto');
         foreach ($produtos as $dados) {
@@ -41,6 +49,13 @@ class ProdutosController extends Controller
     public function create()
     {
         //
+        //$value = '03/06/2016';
+        //$dt = Carbon::createFromFormat('d/m/Y', $value)->toDateString(); //Carbon::now();
+        // echo $dt;
+        //echo $dt->toDateString(); 
+
+        $categorias = Categorias::orderBy('descricao','asc')->get();
+        return view('cadastrarProduto',compact('categorias'));
     }
 
     /**
@@ -52,6 +67,9 @@ class ProdutosController extends Controller
     public function store(Request $request)
     {
         //
+        Produtos::create($request->all());
+        return redirect('/produto');
+        //print_r($request->all());
     }
 
     /**
@@ -71,9 +89,12 @@ class ProdutosController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id_produto)
     {
         //
+        $categorias = Categorias::orderBy('descricao','asc')->get();
+        $produtos = Produtos::find($id_produto);
+        return view('editarProduto', compact('produtos','id_produto','categorias'));
     }
 
     /**
@@ -83,9 +104,15 @@ class ProdutosController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id_produto)
     {
         //
+        $produtos = Produtos::find($id_produto);
+        $produtos->id_categoria = $request->get('id_categoria');
+        $produtos->descricao = $request->get('descricao');
+        $produtos->save();
+       
+        return redirect('/produto');
     }
 
     /**
